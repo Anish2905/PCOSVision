@@ -1,43 +1,32 @@
-You can create a **README.md** file in your repository and copy-paste the following content:
-
----
 
 ```markdown
 # PCOS Detection Tool
 
-PCOS Detection Tool is a deep learning-based application designed to detect Polycystic Ovary Syndrome (PCOS) from medical images. The project comprises a custom-built Convolutional Neural Network (CNN) model, a Flask backend for serving predictions via API, and a responsive HTML/CSS/JavaScript frontend for user interaction.
+PCOS Detection Tool is a deep learning-based application designed to detect Polycystic Ovary Syndrome (PCOS) from medical images. This lightweight tool includes a trained deep learning model, a Flask backend for API-based predictions, and a simple HTML interface for user interaction.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [Installation](#installation)
+- [Dataset Requirements](#dataset-requirements)
 - [Usage](#usage)
   - [Training the Model](#training-the-model)
   - [Running the Flask App](#running-the-flask-app)
 - [File Structure](#file-structure)
-- [Model Training and Evaluation](#model-training-and-evaluation)
 - [Flask API](#flask-api)
 - [Frontend](#frontend)
+- [Dependencies](#dependencies)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
 ## Overview
 
-This repository contains all the code and assets required for the PCOS Detection Tool, which includes:
-- **Model Training:** A CNN built with TensorFlow/Keras for image classification.
-- **Backend:** A Flask application that loads the trained model and provides an API for predictions.
-- **Frontend:** A user-friendly HTML interface for uploading images and displaying prediction results.
-- **Evaluation:** Scripts to plot training history, confusion matrices, ROC curves, and Precision-Recall curves.
-
-## Features
-
-- **CNN Model:** Custom CNN architecture with layers including convolution, pooling, dropout, and dense layers.
-- **Data Preprocessing:** Image loading, resizing, normalization, and one-hot encoding of labels.
-- **Model Evaluation:** Generation of classification reports, confusion matrices, ROC, and Precision-Recall curves.
-- **Flask API:** Lightweight backend to handle image upload and prediction.
-- **Responsive Frontend:** HTML/JS interface with dark mode support and visual feedback (e.g., image preview, loading spinner).
+This repository contains the code and assets required for the PCOS Detection Tool, which includes:
+- **Training Model:** A CNN built with TensorFlow/Keras for image classification.
+- **Flask Backend (`app.py`):** Loads the trained model and provides an API endpoint for image predictions.
+- **HTML Frontend (`index.html`):** A user-friendly interface that allows users to upload images and view classification results.
+- **Dataset:** A dataset of medical images organized into class-specific directories.
 
 ## Installation
 
@@ -58,8 +47,6 @@ This repository contains all the code and assets required for the PCOS Detection
 
 3. **Install dependencies:**
 
-   Ensure you have Python 3.7+ installed, then install the required packages:
-
    ```bash
    pip install -r requirements.txt
    ```
@@ -68,93 +55,107 @@ This repository contains all the code and assets required for the PCOS Detection
    ```
    tensorflow
    keras
-   opencv-python
-   numpy
-   matplotlib
-   seaborn
-   Pillow
-   scikit-learn
    flask
+   pillow
+   numpy
+   opencv-python
    ```
 
-4. **Prepare your dataset:**
+## Dataset Requirements
 
-   - Place your image dataset in a directory (e.g., `dataset_extracted/PCOS`).
-   - Organize the images in subdirectories corresponding to their class labels (e.g., "Infected" and "Not Infected").
+To train or retrain the model, you must have a properly structured dataset of medical images:
+
+- **Directory Structure:**  
+  Create a main dataset folder (e.g., `dataset_extracted/PCOS`) with two subdirectories:
+  - `Infected` — Contains images showing signs of PCOS.
+  - `Not Infected` — Contains images without PCOS.
+  
+- **Image Formats:**  
+  Supported image formats include JPEG, PNG, and JPG.
+
+- **Preprocessing:**  
+  Images will be automatically resized to 128x128 pixels and normalized to have pixel values between 0 and 1.
+
+Ensure your dataset follows this structure before running the training script.
 
 ## Usage
 
 ### Training the Model
 
-Run the model script to load data, train the CNN, evaluate its performance, and save the model.
+If you plan to train the model on your own dataset:
 
-```bash
-python your_model_script.py
-```
+1. Organize your dataset as described above.
+2. Run the training script (e.g., `your_model_script.py`):
 
-The training script will:
-- Load and preprocess images from the dataset.
+   ```bash
+   python your_model_script.py
+   ```
+
+This script will:
+- Load and preprocess images.
 - Split data into training and testing sets.
-- Train the CNN model using early stopping and model checkpoint callbacks.
-- Generate plots for accuracy, loss, ROC, and Precision-Recall curves.
-- Save the best model as `best_model.h5` and the final model as `final_model.h5`.
+- Train the CNN using early stopping and model checkpoint callbacks.
+- Generate evaluation plots (accuracy, loss, ROC, and Precision-Recall curves).
+- Save the trained model as `model.h5` (or similar).
 
 ### Running the Flask App
 
-Once the model is trained, you can start the Flask application to serve predictions:
+Once the model is trained (or if you have a pre-trained model):
 
-```bash
-python your_flask_app.py
-```
+1. Ensure the model file (e.g., `model.h5`) is in the project directory.
+2. Start the Flask application:
 
-Open your browser and navigate to `http://127.0.0.1:5000/` to use the PCOS Detection Tool. Upload an image through the web interface to see prediction results.
+   ```bash
+   python app.py
+   ```
+
+3. Open your browser and navigate to `http://127.0.0.1:5000/` to access the tool.
+
+### Uploading an Image
+
+- Use the web interface provided in `index.html` to upload an image.
+- Click the **Predict** button to receive the classification result (either "Infected" or "Not Infected").
 
 ## File Structure
 
 ```
 pcos-detection-tool/
-├── dataset_extracted/PCOS/      # Your dataset (with class-specific subfolders)
-├── final_model.h5               # Final trained model saved after training
-├── best_model.h5                # Best model checkpoint during training
-├── your_model_script.py         # Python script for training and evaluation
-├── your_flask_app.py            # Flask backend application
+├── app.py               # Flask backend application
+├── your_model_script.py # Script for training and evaluating the CNN model
+├── model.h5             # Trained deep learning model
 ├── templates/
-│   └── index.html               # Frontend HTML file
-├── static/                      # (Optional) Folder for additional assets (CSS/JS/images)
-├── charts/                      # (Optional) Folder for saving evaluation charts
-├── requirements.txt             # Python dependencies
-├── README.md                    # Project documentation (this file)
-└── LICENSE                      # License file (e.g., MIT License)
+│   └── index.html       # Frontend user interface
+├── requirements.txt     # Python dependencies
+├── README.md            # Project documentation (this file)
 ```
-
-## Model Training and Evaluation
-
-- **Data Loading & Preprocessing:** Images are read using OpenCV, converted from BGR to RGB, resized to (128, 128), and normalized.
-- **Model Architecture:** The CNN consists of multiple convolutional and pooling layers, followed by dropout and dense layers.
-- **Evaluation Metrics:** The model is evaluated using classification reports, confusion matrices, ROC curves, and Precision-Recall curves.
-- **Visualization:** Training history (accuracy and loss) is plotted to monitor the performance during training.
 
 ## Flask API
 
-The Flask backend performs the following:
-- Loads the trained model (`final_model.h5`).
-- Provides an endpoint `/predict` that accepts an image file via POST request.
-- Processes the image (resizing, normalizing) and returns a prediction result (either "Infected" or "Not Infected") in JSON format.
+- **Endpoint:** `POST /predict`
+- **Input:** An image file (JPEG/PNG)
+- **Output:** JSON response with a classification result ("Infected" or "Not Infected")
 
 ## Frontend
 
-The HTML frontend includes:
-- **File Upload:** A drag-and-drop upload box with image preview functionality.
-- **Prediction Button:** A button to send the image to the Flask API.
-- **Result Display:** Visual feedback with styled messages based on the prediction outcome.
-- **Dark Mode Toggle:** A simple toggle for switching between light and dark themes.
+The HTML interface (`index.html`) provides:
+- **Image Upload:** A drag-and-drop/file selection area with image preview.
+- **Result Display:** Shows the prediction result dynamically.
+- **Dark Mode Toggle:** Allows switching between light and dark themes.
+
+## Dependencies
+
+This project uses the following libraries:
+- **TensorFlow/Keras:** For building and running the deep learning model.
+- **Flask:** For creating the backend API.
+- **OpenCV and Pillow:** For image processing.
+- **NumPy:** For numerical computations.
 
 ## Contributing
 
 Contributions are welcome! Feel free to:
-- Submit bug reports or feature requests via the GitHub issue tracker.
-- Fork the repository and create pull requests for improvements.
-- Update documentation and code for clarity and functionality.
+- Report bugs or request features via the issue tracker.
+- Fork the repository and submit pull requests for improvements.
+- Update documentation and code for clarity.
 
 ## License
 
@@ -162,7 +163,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-Anish Sharma
-Email: sharmaanish310@gmail.com
-```
-
+For questions or suggestions, please contact me **Anish Sharma** at [sharmaanish310@gmail.com](mailto:sharmaanish310@gmail.com).
