@@ -162,11 +162,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-**Your Name**  
-Email: [your.email@example.com](mailto:your.email@example.com)  
-GitHub: [https://github.com/your_username/pcos-detection-tool](https://github.com/your_username/pcos-detection-tool)
+Anish Sharma
+Email: sharmaanish310@gmail.com
 ```
 
----
-
-Save this as `README.md` in your project directory. If you need a specific modification, let me know! 🚀
