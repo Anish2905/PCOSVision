@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCOS Detection</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Arial", sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            text-align: center;
+            transition: background 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #00796b;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .upload-box {
+            border: 2px dashed #009688;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-box:hover {
+            background: #e0f2f1;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #imagePreview {
+            display: none;
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .button2 {
+            display: inline-block;
+            width: 100%;
+            max-width: 200px;
+            transition: all 0.2s ease-in;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            color: #090909;
+            padding: 0.7em 1.7em;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 0.5em;
+            background: #e8e8e8;
+            border: 1px solid #e8e8e8;
+            box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+            margin: 15px auto 0;
+            display: block;
+        }
+
+        .button2:hover {
+            color: #ffffff;
+            border: 1px solid #009087;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Centered Spinner */
+        .spinner {
+            --size: 30px;
+            --first-block-clr: #005bba;
+            --second-block-clr: #fed500;
+            width: 100px;
+            height: 100px;
+            position: relative;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .spinner::after, .spinner::before {
+            box-sizing: border-box;
+            position: absolute;
+            content: "";
+            width: var(--size);
+            height: var(--size);
+            top: 50%;
+            animation: up 2.4s cubic-bezier(0, 0, 0.24, 1.21) infinite;
+            left: 50%;
+            background: var(--first-block-clr);
+        }
+
+        .spinner::after {
+            background: var(--second-block-clr);
+            top: calc(50% - var(--size));
+            left: calc(50% - var(--size));
+            animation: down 2.4s cubic-bezier(0, 0, 0.24, 1.21) infinite;
+        }
+
+        @keyframes down {
+            0%, 100% { transform: none; }
+            25% { transform: translateX(100%); }
+            50% { transform: translateX(100%) translateY(100%); }
+            75% { transform: translateY(100%); }
+        }
+
+        @keyframes up {
+            0%, 100% { transform: none; }
+            25% { transform: translateX(-100%); }
+            50% { transform: translateX(-100%) translateY(-100%); }
+            75% { transform: translateY(-100%); }
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #00796b;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            background: #263238;
+            color: white;
+        }
+
+        .dark-mode .container {
+            background: #37474f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="darkModeToggle">🌙 Dark Mode</div>
+
+    <div class="container">
+        <h1>PCOS Detection Tool</h1>
+
+        <label class="upload-box">
+            <input type="file" id="fileInput" accept="image/*" onchange="previewImage()">
+            Click to Upload an Image
+        </label>
+
+        <img id="imagePreview">
+
+        <button class="button2" onclick="submitImage()">Predict</button>
+
+        <div class="spinner" id="spinner"></div>
+        
+        <p class="result" id="resultText"></p>
+    </div>
+
+    <script>
+        function previewImage() {
+            let input = document.getElementById("fileInput").files[0];
+            if (input) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.getElementById("imagePreview");
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(input);
+            }
+        }
+
+        function submitImage() {
+            let input = document.getElementById("fileInput").files[0];
+            if (!input) {
+                alert("Please upload an image.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", input);
+
+            document.getElementById("spinner").style.display = "block";
+            document.getElementById("resultText").style.display = "none";
+
+            fetch("/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultText = document.getElementById("resultText");
+                document.getElementById("spinner").style.display = "none";
+                resultText.style.display = "block";
+
+                if (data.result === "Infected") {
+                    resultText.textContent = "⚠️ Infected - Consult a doctor.";
+                    resultText.style.background = "#FFCDD2";
+                    resultText.style.color = "#C62828";
+                } else {
+                    resultText.textContent = "✅ Not Infected - Looks good!";
+                    resultText.style.background = "#C8E6C9";
+                    resultText.style.color = "#2E7D32";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Dark Mode Toggle
+        document.getElementById("darkModeToggle").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+        });
+    </script>
+
+</body>
+</html>
